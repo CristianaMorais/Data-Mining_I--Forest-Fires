@@ -3,8 +3,12 @@ library(dplyr)
 library(tidyverse)
 library(dlookr)
 fires_train <- read_csv("fires_train.csv")
-View(fires_train)
 
 # Task 1
-fires_train <- fires_train %>% select(-c(id, alert_source))
-fires_train <- fires_train %>% mutate(region = na_if(region, "-"))
+View(fires_train)
+fires_train <- fires_train %>% select(-c(id, region, alert_source))
+# fires_train <- fires_train %>% mutate(region = na_if(region, "-"))
+
+#See if there´s any NA
+sum(is.na(fires_train$alert_date))
+fires_train <- fires_train %>% mutate(alert_date=format(alert_date,format="%Y/%m/%d"))
