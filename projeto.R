@@ -8,4 +8,3 @@ View(fires_train)
 # Task 1
 fires_train <- fires_train %>% select(-c(id, alert_source))
 fires_train <- fires_train %>% mutate(region = na_if(region, "-"))
-View(fires_train)
