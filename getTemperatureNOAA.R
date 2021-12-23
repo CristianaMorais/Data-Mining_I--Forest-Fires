@@ -3,7 +3,7 @@
 library('rnoaa')
 library(lubridate)
 require(devtools)
-options(noaakey = "mqEuOSuAUjyuGlTjVjxxCpzRlbrooRnr")
+options(noaakey = "eyZtpHvMVjgtDwCAPVyMAgfRpmqmKYtt")
 #To gain access to NCDC CDO Web Services, you must obtain a token using this link and following the directions given. http://www.ncdc.noaa.gov/cdo-web/token
 
 # Get available stations
