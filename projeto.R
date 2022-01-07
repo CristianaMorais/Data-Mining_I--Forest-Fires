@@ -24,7 +24,7 @@ clean_pre_processing_data <- function(file) {
   
   # Format the latitude and longitude
   file <- file %>% mutate(lat=parse_lat(lat), lon=parse_lon(lon))
-  file <- file %>% mutate(lat = na_if(lat, "NaN"), lon = na_if(lon, "NaN"))
+  file <- file %>% mutate(lat = na_if(lat, "NaN"), lon = na_if(lon, "NaN")) # Converts latitude and longitude to decimal format using the function of the package parzer
   
   # Convert the alert_date for the correct format
   file <- file %>% mutate(alert_date=format(alert_date,format="%Y-%m-%d"))
@@ -33,6 +33,12 @@ clean_pre_processing_data <- function(file) {
   return (file)
   
 }
+
+
+# Esta função foi dada no enunciado e está no ficheiro getTemperatureNOAA.R
+# Foi modificada para retirar as temperaturas máximas da estação mais próxima de cada localização
+# A localização é enviada na forma de latitude e longitude, que convertemos anteriormente
+# Retira a temperatura máxima e insere na tabela na coluna "tmax"
 
 get_temperature <- function(tempdata){
   
