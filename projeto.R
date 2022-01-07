@@ -35,10 +35,10 @@ clean_pre_processing_data <- function(file) {
 }
 
 
-# Esta função foi dada no enunciado e está no ficheiro getTemperatureNOAA.R
-# Foi modificada para retirar as temperaturas máximas da estação mais próxima de cada localização
-# A localização é enviada na forma de latitude e longitude, que convertemos anteriormente
-# Retira a temperatura máxima e insere na tabela na coluna "tmax"
+# This function was given in the statement and is in the getTemperatureNOAA.R file
+# It has been modified to get the maximum temperatures from the station closest to each location
+# The location is sent in the form of latitude and longitude, which we converted earlier
+# Get the maximum temperature and insert it in the table in the column "tmax"
 
 get_temperature <- function(tempdata){
   
