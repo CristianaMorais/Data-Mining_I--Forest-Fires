@@ -16,6 +16,7 @@ clean_pre_processing_data <- function(file) {
   file <- file %>% arrange(region) %>% group_by(district) %>% fill(region)
   
   # Normalize the areas values
+  #
   #file$village_area <- file %>% mutate(village_area = as.numeric(transform(village_area, method = "minmax"))) %>% pull(village_area)
   #file$vegetation_area <- file %>% mutate(vegetation_area = as.numeric(transform(vegetation_area, method = "minmax"))) %>% pull(vegetation_area)
   #file$farming_area <- file %>% mutate(farming_area = as.numeric(transform(farming_area, method = "minmax"))) %>% pull(farming_area)
@@ -57,7 +58,7 @@ get_temperature <- function(tempdata){
     weather_data <- ghcnd_search(nearby_stations[[1]]$id[3], var = c("TMAX") , date_min = tempdata$alert_date[i] , date_max = tempdata$alert_date[i])
     
     temp <- do.call(rbind.data.frame, weather_data['tmax'])
-    #print(tempdata$id[i])
+    print(tempdata$id[i])
     tempdata$tmax[i] <- temp$tmax[1]
     
   }
@@ -71,20 +72,22 @@ get_temperature <- function(tempdata){
 fires_train <- read_csv("fires_train.csv", na= c("NA","", "-"), col_names = TRUE)
 # fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
 
+fires_train$lat <- gsub('1900-01-01','',fires_train$lat)
+
+fires_train$lat <- str_replace(fires_train$lat,',','.')
+fires_train$lon <- str_replace(fires_train$lon,',','.')
+fires_train$lat <- strtrim(fires_train$lat, 9)
+fires_train$lon <- strtrim(fires_train$lon, 9)
+
 # Preparing the files for Task 2
 fires_train <- clean_pre_processing_data(fires_train)
 
-fires_train <- fires_train[-c(10:10309), ]
+# fires_train <- fires_train[-c(10:10309), ]
+
+# Initialize the column of the temperatures
+fires_train$tmax <- NA
 
 fires_train <- get_temperature(fires_train)
-
-max1 <- max(fires_train$tmax, na.rm = TRUE)
-min1 <- min(fires_train$tmax, na.rm = TRUE)
-
-med <- min1:max1
-mean(med)
-fires_train$tmax <- fires_train %>% imputate_na(tmax,method = "mean")
-
 
 # Task 2: Data exploratory analysis
 
