@@ -25,7 +25,7 @@ clean_pre_processing_data <- function(file) {
   
   # Format the latitude and longitude
   file <- file %>% mutate(lat=parse_lat(lat), lon=parse_lon(lon))
-  file <- file %>% mutate(lat = na_if(lat, "NaN"), lon = na_if(lon, "NaN")) # Converts latitude and longitude to decimal format using the function of the package parzer
+  file <- file %>% mutate(lat = na_if(lat, "NaN"), lon = na_if(lon, "NaN"))
   
   # Convert the alert_date for the correct format
   file <- file %>% mutate(alert_date=format(alert_date,format="%Y-%m-%d"))
@@ -34,12 +34,6 @@ clean_pre_processing_data <- function(file) {
   return (file)
   
 }
-
-
-# This function was given in the statement and is in the getTemperatureNOAA.R file
-# It has been modified to get the maximum temperatures from the station closest to each location
-# The location is sent in the form of latitude and longitude, which we converted earlier
-# Get the maximum temperature and insert it in the table in the column "tmax"
 
 get_temperature <- function(tempdata){
   
@@ -76,7 +70,6 @@ get_temperature <- function(tempdata){
 # Data clean-up and pre-processing steps.
 
 fires_train <- read_csv("fires_train.csv", na= c("NA","", "-"), col_names = TRUE)
-# fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
 
 fires_train$lat <- gsub('1900-01-01','',fires_train$lat)
 
@@ -88,14 +81,54 @@ fires_train$lon <- strtrim(fires_train$lon, 9)
 # Preparing the files for Task 2
 fires_train <- clean_pre_processing_data(fires_train)
 
+fires_train$timePeriod <- NA
+
+for(x in 1:length(fires_train$id)) {
+  if(isTRUE(fires_train$alert_hour[x]<as.difftime("06:00:00"))){
+    fires_train$timePeriod[x] = "Madrugada"
+  } 
+  else if(isTRUE(fires_train$alert_hour[x]<as.difftime("12:00:00"))){
+    fires_train$timePeriod[x] ="Manhã"
+  } 
+  else if(isTRUE(fires_train$alert_hour[x]<as.difftime("18:00:00"))){
+    fires_train$timePeriod[x] ="Tarde"
+  } 
+  else if(isTRUE(fires_train$alert_hour[x]<=as.difftime("23:59:59"))){
+    fires_train$timePeriod[x] = "Noite"
+  } 
+}
+
 # fires_train <- fires_train[-c(10:10309), ]
 
 # Initialize the column of the temperatures
-fires_train$tmax <- NA
+#fires_train$tmax <- NA
 
-fires_train <- get_temperature(fires_train)
+#fires_train <- get_temperature(fires_train)
 
 # Task 2: Data exploratory analysis
 
+# IMP
+ggplot(fires_train,aes(x=timePeriod)) + geom_bar() + facet_wrap(~origin) +
+  ggtitle("Relation between the day period and the origin of the fires.") + xlab("Period of the day") + ylab("Number of fires")
 
-# Task 3: Predictive modelling
+print(ggplot(fires_train, aes(x=total_area, y=region)) + geom_bar(stat = "identity"))
+
+# Task 3: Predictive modeling
+
+aux <- fires_train %>% select(c(2,3,6,7,8,9,11,12,13,16,17))
+aux <- aux %>% mutate_if(is.character,as.factor)
+# aux <- fires_train %>% select(c(2,3,6,7,8,9,11,12,13,16,17,18))
+aux2 <- fires_train %>% select(c(2,3,6,7,8,9,11,12,13,16,17))
+spec(aux2)
+summary(aux2)
+count(unique(aux2$district))
+# Task 4: Kaggle Competition
+
+fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
+fires_test$intentional_cause <- 0
+# fires_test <- fires_test %>% select(-c(2:20))
+
+submission <- data.frame(matrix(ncol=0, nrow=length(fires_test$id)))
+submission$id <- fires_test$id
+submission$intentional_cause <- 0
+write.csv(submission , "submission.csv", row.names=FALSE)
