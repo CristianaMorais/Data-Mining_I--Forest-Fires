@@ -98,9 +98,9 @@ fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
 
 # Preparing the files for Task 2
 fires_train <- clean_pre_processing_data(fires_train)
-#fires_test <- clean_pre_processing_data(fires_test)
+fires_test <- clean_pre_processing_data(fires_test)
 
-fires_train <- fires_train[-c(10:10309), ]
+#fires_train <- fires_train[-c(10:10309), ]
 
 # Initialize the column of the temperatures
 fires_train$tmax <- NA
