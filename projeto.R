@@ -9,6 +9,7 @@ require(devtools)
 require(graphics)
 library(randomForest)
 
+
 clean_pre_processing_data <- function(file) {
   
   file <- file %>% select(-c("extinction_date","extinction_hour", "firstInterv_date", "firstInterv_hour", "alert_source"))
