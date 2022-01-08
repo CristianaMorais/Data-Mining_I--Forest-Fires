@@ -11,7 +11,7 @@ library(rpart)
 library(rpart.plot)
 require(randomForest)
 
-setwd("~/GitHub/Projeto_Data_Mining_I")
+
 
 clean_pre_processing_data <- function(file) {
   
@@ -98,23 +98,30 @@ fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
 
 # Preparing the files for Task 2
 fires_train <- clean_pre_processing_data(fires_train)
-fires_test <- clean_pre_processing_data(fires_test)
+#fires_test <- clean_pre_processing_data(fires_test)
 
-# fires_train <- fires_train[-c(10:10309), ]
+fires_train <- fires_train[-c(10:10309), ]
 
 # Initialize the column of the temperatures
-#fires_train$tmax <- NA
-#fires_test$tmax <- NA
+fires_train$tmax <- NA
+fires_test$tmax <- NA
 
 # Get the temperatures
-#fires_train <- get_temperature(fires_train)
+fires_train <- get_temperature(fires_train)
 
+fires_test <- get_temperature(fires_train)
+
+fires_train$tmax <- fires_train %>%
+  imputate_na(tmax,method = "mean")
+
+fires_test$tmax <- fires_test %>%
+  imputate_na(tmax,method = "mean")
 
 ######################### Task 2: Data exploratory analysis ###################
 
 # IMP
 ggplot(fires_train,aes(x=timePeriod)) + geom_bar() + facet_wrap(~origin) +
-  ggtitle("Relation between the day period and the origin of the fires.") + xlab("Period of the day") + ylab("Number of fires")
+ggtitle("Relation between the day period and the origin of the fires.") + xlab("Period of the day") + ylab("Number of fires")
 
 print(ggplot(fires_train, aes(x=total_area, y=region)) + geom_bar(stat = "identity"))
 
