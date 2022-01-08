@@ -7,6 +7,7 @@ library('rnoaa')
 library(base)
 require(devtools)
 require(graphics)
+library(randomForest)
 
 clean_pre_processing_data <- function(file) {
   
@@ -88,7 +89,7 @@ for(x in 1:length(fires_train$id)) {
     fires_train$timePeriod[x] = "Madrugada"
   } 
   else if(isTRUE(fires_train$alert_hour[x]<as.difftime("12:00:00"))){
-    fires_train$timePeriod[x] ="Manhã"
+    fires_train$timePeriod[x] ="Manha"
   } 
   else if(isTRUE(fires_train$alert_hour[x]<as.difftime("18:00:00"))){
     fires_train$timePeriod[x] ="Tarde"
@@ -117,11 +118,10 @@ print(ggplot(fires_train, aes(x=total_area, y=region)) + geom_bar(stat = "identi
 
 aux <- fires_train %>% select(c(2,3,6,7,8,9,11,12,13,16,17))
 aux <- aux %>% mutate_if(is.character,as.factor)
-# aux <- fires_train %>% select(c(2,3,6,7,8,9,11,12,13,16,17,18))
-aux2 <- fires_train %>% select(c(2,3,6,7,8,9,11,12,13,16,17))
-spec(aux2)
-summary(aux2)
-count(unique(aux2$district))
+modelo <- randomForest(cause_type ~.,data=fires_train,ntree=1000,importance=TRUE) 
+pred <- predict(modelo,firestype="class") # previsao do modelo
+
+
 # Task 4: Kaggle Competition
 
 fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
