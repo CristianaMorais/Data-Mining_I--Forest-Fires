@@ -89,7 +89,7 @@ for(x in 1:length(fires_train$id)) {
     fires_train$timePeriod[x] = "Madrugada"
   } 
   else if(isTRUE(fires_train$alert_hour[x]<as.difftime("12:00:00"))){
-    fires_train$timePeriod[x] ="Manha"
+    fires_train$timePeriod[x] ="Manha "
   } 
   else if(isTRUE(fires_train$alert_hour[x]<as.difftime("18:00:00"))){
     fires_train$timePeriod[x] ="Tarde"
