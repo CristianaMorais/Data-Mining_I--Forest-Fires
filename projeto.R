@@ -7,8 +7,11 @@ library('rnoaa')
 library(base)
 require(devtools)
 require(graphics)
-library(randomForest)
+library(rpart)
+library(rpart.plot)
+require(randomForest)
 
+setwd("~/GitHub/Projeto_Data_Mining_I")
 
 clean_pre_processing_data <- function(file) {
   
@@ -18,12 +21,31 @@ clean_pre_processing_data <- function(file) {
   file <- file %>% arrange(region) %>% group_by(district) %>% fill(region)
   
   # Normalize the areas values
-  #
-  #file$village_area <- file %>% mutate(village_area = as.numeric(transform(village_area, method = "minmax"))) %>% pull(village_area)
-  #file$vegetation_area <- file %>% mutate(vegetation_area = as.numeric(transform(vegetation_area, method = "minmax"))) %>% pull(vegetation_area)
-  #file$farming_area <- file %>% mutate(farming_area = as.numeric(transform(farming_area, method = "minmax"))) %>% pull(farming_area)
-  #file$village_veget_area <- file %>% mutate(village_veget_area = as.numeric(transform(village_veget_area, method = "minmax"))) %>% pull(village_veget_area)
   file$total_area <- file %>% mutate(total_area = as.numeric(transform(total_area, method = "minmax"))) %>% pull(total_area)
+  
+  file$timePeriod <- NA
+  
+  for(x in 1:length(file$id)) {
+    if(isTRUE(file$alert_hour[x]<as.difftime("06:00:00"))){
+      file$timePeriod[x] = "Madrugada"
+    } 
+    else if(isTRUE(file$alert_hour[x]<as.difftime("12:00:00"))){
+      file$timePeriod[x] ="Manhã"
+    } 
+    else if(isTRUE(file$alert_hour[x]<as.difftime("18:00:00"))){
+      file$timePeriod[x] ="Tarde"
+    } 
+    else if(isTRUE(file$alert_hour[x]<=as.difftime("23:59:59"))){
+      file$timePeriod[x] = "Noite"
+    } 
+  }
+  
+  file$lat <- gsub('1900-01-01','',file$lat)
+  
+  file$lat <- str_replace(file$lat,',','.')
+  file$lon <- str_replace(file$lon,',','.')
+  file$lat <- strtrim(file$lat, 9)
+  file$lon <- strtrim(file$lon, 9)
   
   # Format the latitude and longitude
   file <- file %>% mutate(lat=parse_lat(lat), lon=parse_lon(lon))
@@ -68,46 +90,27 @@ get_temperature <- function(tempdata){
 }
 
 
-# Task 1: Data importation, clean-up and pre-processing
+############ Task 1: Data importation, clean-up and pre-processing ############
 # Data clean-up and pre-processing steps.
 
 fires_train <- read_csv("fires_train.csv", na= c("NA","", "-"), col_names = TRUE)
-
-fires_train$lat <- gsub('1900-01-01','',fires_train$lat)
-
-fires_train$lat <- str_replace(fires_train$lat,',','.')
-fires_train$lon <- str_replace(fires_train$lon,',','.')
-fires_train$lat <- strtrim(fires_train$lat, 9)
-fires_train$lon <- strtrim(fires_train$lon, 9)
+fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
 
 # Preparing the files for Task 2
 fires_train <- clean_pre_processing_data(fires_train)
-
-fires_train$timePeriod <- NA
-
-for(x in 1:length(fires_train$id)) {
-  if(isTRUE(fires_train$alert_hour[x]<as.difftime("06:00:00"))){
-    fires_train$timePeriod[x] = "Madrugada"
-  } 
-  else if(isTRUE(fires_train$alert_hour[x]<as.difftime("12:00:00"))){
-    fires_train$timePeriod[x] ="Manha "
-  } 
-  else if(isTRUE(fires_train$alert_hour[x]<as.difftime("18:00:00"))){
-    fires_train$timePeriod[x] ="Tarde"
-  } 
-  else if(isTRUE(fires_train$alert_hour[x]<=as.difftime("23:59:59"))){
-    fires_train$timePeriod[x] = "Noite"
-  } 
-}
+fires_test <- clean_pre_processing_data(fires_test)
 
 # fires_train <- fires_train[-c(10:10309), ]
 
 # Initialize the column of the temperatures
 #fires_train$tmax <- NA
+#fires_test$tmax <- NA
 
+# Get the temperatures
 #fires_train <- get_temperature(fires_train)
 
-# Task 2: Data exploratory analysis
+
+######################### Task 2: Data exploratory analysis ###################
 
 # IMP
 ggplot(fires_train,aes(x=timePeriod)) + geom_bar() + facet_wrap(~origin) +
@@ -115,21 +118,21 @@ ggplot(fires_train,aes(x=timePeriod)) + geom_bar() + facet_wrap(~origin) +
 
 print(ggplot(fires_train, aes(x=total_area, y=region)) + geom_bar(stat = "identity"))
 
-# Task 3: Predictive modeling
+######################### Task 3: Predictive modeling #########################
 
-aux <- fires_train %>% select(c(2,3,6,7,8,9,11,12,13,16,17))
-aux <- aux %>% mutate_if(is.character,as.factor)
-modelo <- randomForest(cause_type ~.,data=fires_train,ntree=1000,importance=TRUE) 
-pred <- predict(modelo,firestype="class") # previsao do modelo
+aux <- fires_train %>% select(c(2,6,7,8,9,11,12,13,16))
+#aux <- aux %>% mutate_if(is.character,as.factor)
+aux2 <- fires_test %>% select(c(2,6,7,8,9,11,12,13))
+aux2 <- aux2 %>% mutate_if(is.character,as.factor)
+
+modelo <- randomForest(intentional_cause ~.,data=aux,ntree=1000,importance=TRUE)
+pred <- predict(modelo,aux2,type="class")
 
 
-# Task 4: Kaggle Competition
-
-fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
-fires_test$intentional_cause <- 0
-# fires_test <- fires_test %>% select(-c(2:20))
+######################### Task 4: Kaggle Competition ##########################
 
 submission <- data.frame(matrix(ncol=0, nrow=length(fires_test$id)))
 submission$id <- fires_test$id
 submission$intentional_cause <- 0
+submission$intentional_cause <- pred
 write.csv(submission , "submission.csv", row.names=FALSE)
