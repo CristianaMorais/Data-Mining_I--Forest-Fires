@@ -9,7 +9,7 @@ require(devtools)
 require(graphics)
 library(rpart)
 library(rpart.plot)
-require(randomForest) 
+require(randomForest)  
 
 
 
@@ -116,6 +116,9 @@ fires_train$tmax <- fires_train %>%
 
 fires_test$tmax <- fires_test %>%
   imputate_na(tmax,method = "mean")
+
+write.csv(fires_train , "fires_train2.csv")
+write.csv(fires_test , "firest_test2.csv")
 
 ######################### Task 2: Data exploratory analysis ###################
 
