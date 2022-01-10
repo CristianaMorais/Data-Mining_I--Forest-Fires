@@ -7,6 +7,9 @@ output: beamer_presentation
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+
+fires_train <- read_csv("fires_train.csv", na= c("NA","", "-"), col_names = TRUE)
+fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
 ```
 
 ##Definição do problema
@@ -14,41 +17,16 @@ Os incêndios florestais são uma questão muito importante, que afeta negativam
 
 Assim sendo, e com um intuito de analisar com melhor detalhe e tentar encontrar formas que possam ajudar a evitar estas tragédias, desenvolvemos este projeto com o intuito de encontrar um modelo que nos permitisse determinar se a causa de um incêndio foi intencional ou não.
 
-
-##Data analysis: very short summary, focusing on the main findings (2 slides)
-
-
-##data preparation: very short summary, focusing on the main operations  (2 slides)
+## Data exploration analysis: very short summary, focusing on the main findings (2 slides) - Task 2
 
 
-##experimental setup (1 slide)
+## Data preparation: very short summary, focusing on the main operations  (2 slides) - Task 1
 
 
-##Resultados
+## Experimental setup (1 slide) - Task 3
 
 
-##Conclusões, limitações e trabalhos futuros
+## Resultados (2 slides)
 
-## R Markdown
 
-This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
-
-## Slide with Bullets
-
-- Bullet 1
-- Bullet 2
-- Bullet 3
-
-## Slide with R Output
-
-```{r cars, echo = TRUE}
-summary(cars)
-```
-
-## Slide with Plot
-
-```{r pressure}
-plot(pressure)
-```
+## Conclusões, limitações e trabalhos futuros
