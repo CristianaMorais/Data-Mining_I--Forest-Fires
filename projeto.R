@@ -11,6 +11,8 @@ library(rpart)
 library(rpart.plot)
 require(randomForest)  
 library(randomForest)
+library(caret)
+library(naivebayes)
 
 
 
@@ -132,12 +134,30 @@ print(ggplot(fires_train, aes(x=total_area, y=region)) + geom_bar(stat = "identi
 
 ######################### Task 3: Predictive modeling #########################
 
-aux <- fires_train2 %>% select(c(2,6,7,8,9,11,12,13,16,18))
-aux2 <- fires_test2 %>% select(c(2,6,7,8,9,11,12,13,14,17))
+aux <- fires_train2 %>% select(c(2,6,7,8,9,11,12,13,16,18)) # com lat e lon
+
+aux.knn <- fires_train2 %>% select(c(6,7,11,12,13,16,18))
+aux.knn <- aux.knn %>% mutate_if(is.character,as.factor)
+
+aux.bay <- fires_train2 %>% select(c(6,7,11,12,13,16,18))
+aux.bay <- aux.bay %>% mutate_if(is.character,as.factor)
+
+aux2 <- fires_test2 %>% select(c(2,6,7,8,9,11,12,13,14,17)) #com lat e lon VER ISTO 14 TEM DE SAIR
+
+aux2.knn <- fires_test2 %>% select(c(6,7,11,12,13,17)) #com lat e lon
+aux2.knn <- aux2.knn %>% mutate_if(is.character,as.factor)
+
+aux2.bay <- fires_test2 %>% select(c(6,7,11,12,13,17)) #com lat e lon
+aux2.bay <- aux2.bay %>% mutate_if(is.character,as.factor)
 
 
-modelo <- randomForest(intentional_cause ~.,data=aux,ntree=2000,importance=TRUE)
+modelo <- randomForest(intentional_cause ~.,data=aux,ntree=1000,importance=TRUE)
+knn.model <- knn3(intentional_cause ~., data = aux.knn, k = 100)
+nb.model <- naive_bayes(intentional_cause ~., data = aux.bay)
+
+
 pred <- predict(modelo,aux2,type="class")
+predknn <- predict(knn.model,aux2.knn,type="class")
 
 
 ######################### Task 4: Kaggle Competition ##########################
