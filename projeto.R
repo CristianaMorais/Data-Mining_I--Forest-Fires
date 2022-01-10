@@ -10,6 +10,9 @@ require(graphics)
 library(rpart)
 library(rpart.plot)
 require(randomForest)  
+library(randomForest)
+library(caret)
+library(naivebayes)
 
 
 
@@ -96,11 +99,13 @@ get_temperature <- function(tempdata){
 fires_train <- read_csv("fires_train.csv", na= c("NA","", "-"), col_names = TRUE)
 fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
 
+#fires_train <- fires_train[-c(50:10309), ]
+
 # Preparing the files for Task 2
 fires_train <- clean_pre_processing_data(fires_train)
 fires_test <- clean_pre_processing_data(fires_test)
 
-#fires_train <- fires_train[-c(10:10309), ]
+
 
 # Initialize the column of the temperatures
 fires_train$tmax <- NA
@@ -108,8 +113,7 @@ fires_test$tmax <- NA
 
 # Get the temperatures
 fires_train <- get_temperature(fires_train)
-
-fires_test <- get_temperature(fires_train)
+fires_test <- get_temperature(fires_test)
 
 fires_train$tmax <- fires_train %>%
   imputate_na(tmax,method = "mean")
@@ -117,8 +121,8 @@ fires_train$tmax <- fires_train %>%
 fires_test$tmax <- fires_test %>%
   imputate_na(tmax,method = "mean")
 
-write.csv(fires_train , "fires_train2.csv")
-write.csv(fires_test , "firest_test2.csv")
+write.csv(fires_train , "fires_train2.csv",row.names = FALSE)
+write.csv(fires_test , "fires_test2.csv",row.names = FALSE)
 
 ######################### Task 2: Data exploratory analysis ###################
 
@@ -130,19 +134,36 @@ print(ggplot(fires_train, aes(x=total_area, y=region)) + geom_bar(stat = "identi
 
 ######################### Task 3: Predictive modeling #########################
 
-aux <- fires_train %>% select(c(2,6,7,8,9,11,12,13,16))
-#aux <- aux %>% mutate_if(is.character,as.factor)
-aux2 <- fires_test %>% select(c(2,6,7,8,9,11,12,13))
-aux2 <- aux2 %>% mutate_if(is.character,as.factor)
+aux <- fires_train2 %>% select(c(2,6,7,8,9,11,12,13,16,18)) # com lat e lon
+
+aux.knn <- fires_train2 %>% select(c(6,7,11,12,13,16,18))
+aux.knn <- aux.knn %>% mutate_if(is.character,as.factor)
+
+aux.bay <- fires_train2 %>% select(c(6,7,11,12,13,16,18))
+aux.bay <- aux.bay %>% mutate_if(is.character,as.factor)
+
+aux2 <- fires_test2 %>% select(c(2,6,7,8,9,11,12,13,14,17)) #com lat e lon VER ISTO 14 TEM DE SAIR
+
+aux2.knn <- fires_test2 %>% select(c(6,7,11,12,13,17)) #com lat e lon
+aux2.knn <- aux2.knn %>% mutate_if(is.character,as.factor)
+
+aux2.bay <- fires_test2 %>% select(c(6,7,11,12,13,17)) #com lat e lon
+aux2.bay <- aux2.bay %>% mutate_if(is.character,as.factor)
+
 
 modelo <- randomForest(intentional_cause ~.,data=aux,ntree=1000,importance=TRUE)
+knn.model <- knn3(intentional_cause ~., data = aux.knn, k = 100)
+nb.model <- naive_bayes(intentional_cause ~., data = aux.bay)
+
+
 pred <- predict(modelo,aux2,type="class")
+predknn <- predict(knn.model,aux2.knn,type="class")
 
 
 ######################### Task 4: Kaggle Competition ##########################
 
-submission <- data.frame(matrix(ncol=0, nrow=length(fires_test$id)))
-submission$id <- fires_test$id
+submission <- data.frame(matrix(ncol=0, nrow=length(fires_test2$id)))
+submission$id <- fires_test2$id
 submission$intentional_cause <- 0
 submission$intentional_cause <- pred
 write.csv(submission , "submission.csv", row.names=FALSE)
