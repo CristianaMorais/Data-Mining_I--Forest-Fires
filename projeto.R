@@ -134,33 +134,68 @@ print(ggplot(fires_train, aes(x=total_area, y=region)) + geom_bar(stat = "identi
 
 ######################### Task 3: Predictive modeling #########################
 
-aux <- fires_train2 %>% select(c(2,6,7,8,9,11,12,13,16,18)) # com lat e lon
+aux <- fires_train2 %>% select(c(2,3,6,7,8,9,11,12,13,16,18)) # com lat e lon
+aux2 <- fires_test2 %>% select(c(2,3,6,7, 8,9,11,12,13,17)) #com lat e lon VER ISTO 14 TEM DE SAIR
 
-aux.knn <- fires_train2 %>% select(c(6,7,11,12,13,16,18))
-aux.knn <- aux.knn %>% mutate_if(is.character,as.factor)
 
-aux.bay <- fires_train2 %>% select(c(6,7,11,12,13,16,18))
-aux.bay <- aux.bay %>% mutate_if(is.character,as.factor)
 
-aux2 <- fires_test2 %>% select(c(2,6,7,8,9,11,12,13,14,17)) #com lat e lon VER ISTO 14 TEM DE SAIR
 
-aux2.knn <- fires_test2 %>% select(c(6,7,11,12,13,17)) #com lat e lon
-aux2.knn <- aux2.knn %>% mutate_if(is.character,as.factor)
 
-aux2.bay <- fires_test2 %>% select(c(6,7,11,12,13,17)) #com lat e lon
-aux2.bay <- aux2.bay %>% mutate_if(is.character,as.factor)
+
+# aux.bay <- fires_train2 %>% select(c(11,12,13,16,18))
+# summary(aux.bay)
+# aux.bay <- aux.bay %>% mutate_if(is.numeric,as.character)
+# 
+# aux2.bay <- fires_test2 %>% select(c(11,12,13,17)) #com lat e lon
+# summary(aux2.bay)
+# aux2.bay <- aux2.bay %>% mutate_if(is.numeric,as.character)
+# 
+
+
+
+
+
+# 
+# aux.part <- fires_train2 %>% select(c(8,9,10,12,16,18))
+# aux.part$origin <-  as.factor(aux.part$origin)
+# aux.part$alert_date <-  as.factor(aux.part$alert_date)
+# aux.part$alert_hour <-  as.factor(aux.part$alert_hour)
+# aux.part$vegetation_area <- as.factor(aux.part$vegetation_area)
+# aux.part$intentional_cause <- as.factor(aux.part$intentional_cause)
+# aux.part$tmax <- as.factor(aux.part$tmax)
+# 
+# aux2.part <- fires_test2 %>% select(c(8,9,10,12,17))
+# 
+# summary(aux.part)
+# summary(aux2.part)
+# aux2.part$origin <-  as.factor(aux2.part$origin)
+# aux2.part$alert_date <-  as.factor(aux2.part$alert_date)
+# aux2.part$alert_hour <-  as.factor(aux2.part$alert_hour)
+# aux2.part$vegetation_area <- as.factor(aux2.part$vegetation_area)
+# aux2.part$tmax <- as.factor(aux2.part$tmax)
+
 
 
 modelo <- randomForest(intentional_cause ~.,data=aux,ntree=1000,importance=TRUE)
-knn.model <- knn3(intentional_cause ~., data = aux.knn, k = 100)
+
+
+
 nb.model <- naive_bayes(intentional_cause ~., data = aux.bay)
 
+treedatabase <- rpart(intentional_cause ~ .,aux.part)
+rpart.plot(treedatabase)
+prp(treedatabase)
 
+# fires_train2$intentional_cause <- as.character(fires_train2$intentional_cause)
+  
+  
 pred <- predict(modelo,aux2,type="class")
-predknn <- predict(knn.model,aux2.knn,type="class")
+
+prednb <- predict(nb.model, aux2.bay, type = "class")
 
 
-######################### Task 4: Kaggle Competition ##########################
+
+ ######################### Task 4: Kaggle Competition ##########################
 
 submission <- data.frame(matrix(ncol=0, nrow=length(fires_test2$id)))
 submission$id <- fires_test2$id
