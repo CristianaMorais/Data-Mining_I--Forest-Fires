@@ -1,18 +1,18 @@
 ---
 title: "Incêndios Florestais em Portugal - Report"
-author: "Grupo 7 - Cristiana Silva 201505454, Nuno Tomás 201503467 e Rui Santos 201805317"
+author: 
+- Cristiana Silva 201505454, Nuno Tomás 201503467 e Rui Santos 201805317"
 date: "14/01/2022"
-output: beamer_presentation
+output: 
+  beamer_presentation:
+    latex_engine : xelatex
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-
-fires_train <- read_csv("fires_train.csv", na= c("NA","", "-"), col_names = TRUE)
-fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
 ```
 
-##Definição do problema
+## Definição do problema
 Os incêndios florestais são uma questão muito importante, que afeta negativamente as mudanças climáticas, cujas causas normalmente são os descuidos, acidentes e negligências cometidos por indivíduos, atos intencionais e causas naturais. Estes podem ter impactos e efeitos nocivos sobre os ecossistemas, levando ao desaparecimento de espécies e até ao aumento dos níveis de dióxido de carbono.
 
 Assim sendo, e com um intuito de analisar com melhor detalhe e tentar encontrar formas que possam ajudar a evitar estas tragédias, desenvolvemos este projeto com o intuito de encontrar um modelo que nos permitisse determinar se a causa de um incêndio foi intencional ou não.
