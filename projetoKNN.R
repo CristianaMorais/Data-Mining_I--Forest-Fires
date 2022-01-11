@@ -62,4 +62,4 @@ submission$intentional_cause <- preds.knn
 # submissionKNN <- submission[-c(3)]
 
 
-write.csv(submission , "submissionKNN2.csv",row.names = FALSE)
+write.csv(submission , "submissionKNN.csv",row.names = FALSE)
