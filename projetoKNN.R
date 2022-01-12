@@ -13,43 +13,37 @@ fires_test2 <- read_csv("fires_test2.csv", na= c("NA","", "-"), col_names = TRUE
 aux.knn <- fires_train2
 aux2.knn <- fires_test2
 
-#aux.knn <- fires_train2 %>% mutate_if(is.character,as.factor)
-#aux.knn <- fires_train2 %>% mutate_if(is.numeric,as.factor)
-
-aux.knn$region <- factor(fires_train2$region )
-aux.knn$district <- factor(fires_train2$district )
-aux.knn$municipality <- factor(fires_train2$municipality )
-aux.knn$parish <- factor(fires_train2$parish )
-aux.knn$origin <- factor(fires_train2$origin )
-aux.knn$intentional_cause <- factor(fires_train2$intentional_cause )
-aux.knn$lat <- factor(fires_train2$lat )
-aux.knn$lon <- factor(fires_train2$lon )
-
-
-#aux2.knn <- fires_test2 %>% mutate_if(is.character,as.factor)
-#aux2.knn <- fires_test2 %>% mutate_if(is.numeric,as.factor)
-
-aux2.knn$region <- factor(fires_test2$region )
-aux2.knn$district <- factor(fires_test2$district )
-aux2.knn$municipality <- factor(fires_test2$municipality )
-aux2.knn$parish <- factor(fires_test2$parish )
-aux2.knn$origin <- factor(fires_test2$origin )
-aux2.knn$lat <- factor(fires_test2$lat )
-aux2.knn$lon <- factor(fires_test2$lon )
-
-
-# set.seed(123)
-# input_train <- createDataPartition(y=fires_train2$intentional_cause, p=1, list=FALSE)
-# aux.knn <- fires_train2 %>% slice(input_train)
-aux.knn <- subset(fires_train2, select=-c(id, parish, municipality, lat, lon))
+# aux.knn$lat <- as.data.frame(scale(aux.knn[,c(6)])) #normalizar lat e lon
+# aux.knn$lon <- as.data.frame(scale(aux.knn[,c(7)]))
 
 
 
+aux.knn$region <- factor(aux.knn$region )
+aux.knn$district <- factor(aux.knn$district )
+aux.knn$municipality <- factor(aux.knn$municipality )
+aux.knn$parish <- factor(aux.knn$parish )
+aux.knn$origin <- factor(aux.knn$origin )
+aux.knn$intentional_cause <- factor(aux.knn$intentional_cause )
+aux.knn$lat <- factor(aux.knn$lat )
+aux.knn$lon <- factor(aux.knn$lon )
+#aux.knn$tmax <- factor(aux.knn$tmax)
+
+
+aux2.knn$region <- factor(aux2.knn$region )
+aux2.knn$district <- factor(aux2.knn$district )
+aux2.knn$municipality <- factor(aux2.knn$municipality )
+aux2.knn$parish <- factor(aux2.knn$parish )
+aux2.knn$origin <- factor(aux2.knn$origin )
+aux2.knn$lat <- factor(aux2.knn$lat )
+aux2.knn$lon <- factor(aux2.knn$lon )
+#aux2.knn$tmax <- factor(aux2.knn$tmax)
+
+aux.knn <- subset(aux.knn, select=-c(id, parish, municipality, lat, lon))
 
 
 knn.model <- knn3(intentional_cause ~., data = aux.knn, k = 7)
 
-preds.knn <- predict(knn.model,aux2.knn)
+preds.knn <- predict(knn.model,aux2.knn,type= "class")
 
 
 
