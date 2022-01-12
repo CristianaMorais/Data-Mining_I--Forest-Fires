@@ -23,9 +23,6 @@ clean_pre_processing_data <- function(file) {
   # Fill the missing values
   file <- file %>% arrange(region) %>% group_by(district) %>% fill(region)
   
-  # Normalize the areas values
-  file$total_area <- file %>% mutate(total_area = as.numeric(transform(total_area, method = "minmax"))) %>% pull(total_area)
-  
   file$timePeriod <- NA
   
   for(x in 1:length(file$id)) {
@@ -99,7 +96,6 @@ get_temperature <- function(tempdata){
 fires_train <- read_csv("fires_train.csv", na= c("NA","", "-"), col_names = TRUE)
 fires_test <- read_csv("fires_test.csv", na= c("NA","", "-"), col_names = TRUE)
 
-#fires_train <- fires_train[-c(50:10309), ]
 
 # Preparing the files for Task 2
 fires_train <- clean_pre_processing_data(fires_train)
@@ -121,84 +117,37 @@ fires_train$tmax <- fires_train %>%
 fires_test$tmax <- fires_test %>%
   imputate_na(tmax,method = "mean")
 
-write.csv(fires_train , "fires_train2.csv",row.names = FALSE)
-write.csv(fires_test , "fires_test2.csv",row.names = FALSE)
+write_csv(fires_train , "fires_train2.csv")
+write_csv(fires_test , "fires_test2.csv")
 
 ######################### Task 2: Data exploratory analysis ###################
 
 # IMP
 ggplot(fires_train,aes(x=timePeriod)) + geom_bar() + facet_wrap(~origin) +
-ggtitle("Relation between the day period and the origin of the fires.") + xlab("Period of the day") + ylab("Number of fires")
+  ggtitle("Relation between the day period and the origin of the fires.") + xlab("Period of the day") + ylab("Number of fires")
 
 print(ggplot(fires_train, aes(x=total_area, y=region)) + geom_bar(stat = "identity"))
 
 ######################### Task 3: Predictive modeling #########################
 
 aux <- fires_train2 %>% select(c(2,3,6,7,8,9,11,12,13,16,18)) # com lat e lon
-aux2 <- fires_test2 %>% select(c(2,3,6,7, 8,9,11,12,13,17)) #com lat e lon VER ISTO 14 TEM DE SAIR
+aux2 <- fires_test2 %>% select(c(2,3,6,7, 8,9,11,12,13,17)) #com lat e lon 
 
-
-
-
-
-
-# aux.bay <- fires_train2 %>% select(c(11,12,13,16,18))
-# summary(aux.bay)
-# aux.bay <- aux.bay %>% mutate_if(is.numeric,as.character)
-# 
-# aux2.bay <- fires_test2 %>% select(c(11,12,13,17)) #com lat e lon
-# summary(aux2.bay)
-# aux2.bay <- aux2.bay %>% mutate_if(is.numeric,as.character)
-# 
-
-
-
-
-
-# 
-# aux.part <- fires_train2 %>% select(c(8,9,10,12,16,18))
-# aux.part$origin <-  as.factor(aux.part$origin)
-# aux.part$alert_date <-  as.factor(aux.part$alert_date)
-# aux.part$alert_hour <-  as.factor(aux.part$alert_hour)
-# aux.part$vegetation_area <- as.factor(aux.part$vegetation_area)
-# aux.part$intentional_cause <- as.factor(aux.part$intentional_cause)
-# aux.part$tmax <- as.factor(aux.part$tmax)
-# 
-# aux2.part <- fires_test2 %>% select(c(8,9,10,12,17))
-# 
-# summary(aux.part)
-# summary(aux2.part)
-# aux2.part$origin <-  as.factor(aux2.part$origin)
-# aux2.part$alert_date <-  as.factor(aux2.part$alert_date)
-# aux2.part$alert_hour <-  as.factor(aux2.part$alert_hour)
-# aux2.part$vegetation_area <- as.factor(aux2.part$vegetation_area)
-# aux2.part$tmax <- as.factor(aux2.part$tmax)
 
 
 
 modelo <- randomForest(intentional_cause ~.,data=aux,ntree=1000,importance=TRUE)
-
-
-
-nb.model <- naive_bayes(intentional_cause ~., data = aux.bay)
-
-treedatabase <- rpart(intentional_cause ~ .,aux.part)
-rpart.plot(treedatabase)
-prp(treedatabase)
-
-# fires_train2$intentional_cause <- as.character(fires_train2$intentional_cause)
-  
-  
 pred <- predict(modelo,aux2,type="class")
 
-prednb <- predict(nb.model, aux2.bay, type = "class")
 
 
 
- ######################### Task 4: Kaggle Competition ##########################
+
+######################### Task 4: Kaggle Competition ##########################
 
 submission <- data.frame(matrix(ncol=0, nrow=length(fires_test2$id)))
 submission$id <- fires_test2$id
 submission$intentional_cause <- 0
 submission$intentional_cause <- pred
 write.csv(submission , "submission.csv", row.names=FALSE)
+
