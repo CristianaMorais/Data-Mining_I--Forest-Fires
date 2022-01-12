@@ -29,7 +29,6 @@ aux.bay$timePeriod <- factor(aux.bay$timePeriod, ordered=TRUE )
 # class(aux2.bay$region)
 # typeof(aux2.bay$region)
 
-#aux2.bay <- aux2.bay %>% select(-c("timePeriod"))
 
 aux2.bay$region <- factor(aux2.bay$region ,ordered=TRUE)
 aux2.bay$district <- factor(aux2.bay$district ,ordered=TRUE)
@@ -57,8 +56,6 @@ submission <- data.frame(matrix(ncol=0, nrow=length(fires_test2$id)))
 submission$id <- fires_test2$id
 submission$intentional_cause <- 0
 submission$intentional_cause <- preds.nb
-
-
 
 
 write.csv(submission , "submissionBAYES.csv",row.names = FALSE)

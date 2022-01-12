@@ -134,13 +134,8 @@ aux <- fires_train2 %>% select(c(2,3,6,7,8,9,11,12,13,16,18)) # com lat e lon
 aux2 <- fires_test2 %>% select(c(2,3,6,7, 8,9,11,12,13,17)) #com lat e lon 
 
 
-
-
 modelo <- randomForest(intentional_cause ~.,data=aux,ntree=1000,importance=TRUE)
 pred <- predict(modelo,aux2,type="class")
-
-
-
 
 
 ######################### Task 4: Kaggle Competition ##########################
